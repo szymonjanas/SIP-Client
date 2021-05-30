@@ -16,11 +16,11 @@ class Session:
                  p_clientIP : str = "127.0.0.1"):
         self.clientIP = p_clientIP
         self.bind_port = None
-        self.sipSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sipSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
     def bind(self):
-        self.sipSocket.bind((self.clientIP))
-        self.bind_port = self.sipsocket.getsockname()[1]
+        self.sipSocket.bind(("127.0.0.1", 0))
+        self.bind_port = self.sipSocket.getsockname()[1]
         __logger__.warning("Session bind with addr: " + self.clientIP + ":" + str(self.bind_port))
 
     def getPort(self):
