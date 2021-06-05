@@ -1,5 +1,5 @@
-import sip.helpers
 from random import randint
+import sip.helpers
 
 def branch():
     return "z9hG4bK" + sip.helpers.generate('0123456789abcdefghijklmnorstuvwxyz', 20)

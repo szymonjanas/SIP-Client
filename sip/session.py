@@ -1,38 +1,69 @@
+import threading
 import sip.messages
-import socket
+import sip.serialize
+import sip.authorization
+import sip.Client
+import sip.header
 import logging
-import sip.helpers
 
 __logger__ = logging.getLogger(__name__)
-__logger__.setLevel(10)
 
-class Response:
-    def __init__(self, p_data, p_addr):
-        self.data = p_data
-        self.addr = p_addr
+class Session(threading.Thread):
+    def __init__(self, p_client):
+        self.client = p_client
+        self.last_response = None
+        self.callID = sip.header.callID()
+        self.senderQ = list()
 
-class Session:
-    def __init__(self,
-                 p_clientIP : str = "127.0.0.1"):
-        self.clientIP = p_clientIP
-        self.bind_port = None
-        self.sipSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        threading.Thread.__init__(self)
+        self.deamon = True
+        self.start()
 
-    def bind(self):
-        self.sipSocket.bind(("127.0.0.1", 0))
-        self.bind_port = self.sipSocket.getsockname()[1]
-        __logger__.warning("Session bind with addr: " + self.clientIP + ":" + str(self.bind_port))
+    def run(self):
+        print()
 
-    def getPort(self):
-        if self.bind_port == None:
-            __logger__.error("Session not binded!")
-        return self.bind_port
+    def register(self):
+        registerMsg = sip.messages.REGISTER(p_client=self.client, p_callID=self.callID)
+        self.client.network.send(   registerMsg,
+                                    self.client.config.domain,
+                                    self.client.config.sipPORT)
 
-    def send(self, message : str, ip : str, port : int):
-        self.sipSocket.sendto(sip.helpers.encode(message), (ip, port))
-        __logger__.info("SEND: " + message)
+    def invite(self, p_usernameDest='100'):
+        inviteMsg = sip.messages.INVITE(p_client = self.client, 
+                                        p_username_dest=p_usernameDest,
+                                        p_callID = self.callID)
+        self.senderQ.append(inviteMsg)
 
-    def recv(self):
-        data, addr = self.sipSocket.recvfrom(2048)
-        __logger__.info("RECV FROM: " + str(addr) + "; MESSAGE: " + str(data))
-        return Response(sip.helpers.decode(data), addr)
+    
+
+    def process(self, p_response : sip.Network.Response):
+        t_response = sip.serialize.decodeRequest(p_response.data)
+        self.last_response = t_response
+        if t_response["Message"] == 'SIP/2.0 401 Unauthorized':
+            registerWithAuth = sip.messages.REGISTER(
+                                    p_client = self.client, p_callID = self.callID,
+                                    p_authorization=sip.authorization.Authorization(p_nonce=t_response['nonce'],
+                                                                                    p_realm=t_response['realm'],
+                                                                                    p_method=t_response['method']))
+            self.client.network.send(   registerWithAuth,
+                                        self.client.config.domain,
+                                        self.client.config.sipPORT)
+            return
+
+        if t_response["Message"] == 'SIP/2.0 200 OK':
+            self.client.isRegister = True
+            print("200 OK")
+            __logger__.info("200 OK")
+ 
+        if t_response["Message"] == 'SIP/2.0 100 Trying':
+            print("Trying...")
+            __logger__.info("Trying...")
+
+        while not bool(len(self.senderQ)):
+            pass
+
+        itemToSend = self.senderQ.pop(0)
+        self.client.network.send(   itemToSend, 
+                                    self.client.config.domain,
+                                    self.client.config.sipPORT)
+
