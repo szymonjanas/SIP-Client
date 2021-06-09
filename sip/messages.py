@@ -93,11 +93,34 @@ def INVITE( p_client : sip.Client.Client,
     if p_contentSDP is not None:
         contentLength = len(p_contentSDP)
     request += 'Content-Length: {}\r\n'.format(contentLength)
+    if p_contentSDP is not None:
+        request += 'Content-Type: {}\r\n'.format("application/sdp")
+        request += '\r\n{}'.format(p_contentSDP)
+    if p_contentSDP is None:
+        request += '\r\n'
+    return request
+
+
+
+def ACK(p_client : sip.Client.Client, 
+        p_username_dest : str,
+        p_tag : str ="dd022aced4fbd05a",
+        p_branch : str = sip.header.branch(),
+        p_callID : str = sip.header.callID(),
+        p_cseq : str = sip.header.cseq()):
+    requestName = 'ACK'
+    request = str()
+    request += __buildBasicRequest__(   p_requestName=requestName,
+                                        p_username=p_client.config.username,
+                                        p_domain=p_client.config.domain,
+                                        p_clientIP=p_client.config.clientIP,
+                                        p_clientPORT=p_client.config.clientPORT,
+                                        p_branch=p_branch,
+                                        p_tag=p_tag,
+                                        p_callID=p_callID,
+                                        p_cseq=p_cseq,
+                                        p_username_dest=p_username_dest)
+    request += 'User-Agent: {}\r\n'.format(p_client.config.userAgent)
+    contentLength = 0
     request += '\r\n'
     return request
-    # request += 'Content-Type: application/sdp'
-
-
-# ffmpeg
-# From Bardowski Pawel to Everyone:  01:47 PM
-#  ffmpeg.exe -i Runner-1080p\\libx265\\6750\\encoded.mp4 -vb 6750k -maxrate 6750k -bufsize 6750k -filter:v fps=30000/1001 -vcodec libx265 -preset medium -x265-params keyint=10:min-keyint=10 -sdp_file Runner-1080p\\libx265\\6750\\rtp\\.info.sdp -strict 2 -f rtp rtp://127.0.0.1:16500

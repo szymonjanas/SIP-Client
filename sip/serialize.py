@@ -6,7 +6,6 @@ def decodeRequest(p_request):
     request = dict()
     p_request = p_request.split("\r\n")
     request['Message'] = p_request[0]
-
     for idx in range(len(p_request)):
 
         if p_request[idx].find('WWW-Authenticate') != -1:
@@ -26,5 +25,9 @@ def decodeRequest(p_request):
             request['cseq'] = p_request[idx][6:16]
             request['method'] = p_request[idx][17:]
 
-    __logger__.debug(request)
+        if p_request[idx].find('m=audio ') != -1:
+            idx_t = len('nm=audio')
+            request['audio-port'] = p_request[idx][idx_t:idx_t+5]
+
+    __logger__.info(request)
     return request
