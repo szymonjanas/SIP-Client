@@ -54,4 +54,4 @@ class Receiver(threading.Thread):
             while self.status:
                 self.callback.process(self.networkConnector.recv())
         except Exception as ex:
-            print(ex.what())
+            __logger__.error(str(ex))

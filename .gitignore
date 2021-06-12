@@ -1,4 +1,6 @@
 sip/__pycache__
+gui/__pycache__
+settings/__pycache__
 wireshark
 MSGS
 sipclient.log

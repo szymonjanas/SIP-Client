@@ -1,4 +1,7 @@
-import sys, time, subprocess, os
+import subprocess
+import logging
+
+__logger__ = logging.getLogger(__name__)
 
 class Audio:
     def __init__(self):
@@ -21,13 +24,16 @@ class Audio:
     def play(self, p_port=None):
         if p_port == None:
             p_port = self.port
-        cmd = 'ffmpeg -re -i sample_u_law.wav -vn -f mulaw -f rtp rtp://{}:{}'.format(self.ip, p_port)
+        path = 'E:\\PWr\\Semestr6\\UiSMUrządzeniaISystemyMultimedialne\\ProjektSIP\\Program\\SIP-Client\\'
+        cmd = 'ffmpeg -re -i {path}sample_u-law.wav -vn -f mulaw -f rtp rtp://{ip}:{port}'.format(path=path, ip=self.ip, port=p_port)
+        __logger__.info("Audio execute: " + cmd)
         self.playing = subprocess.Popen(cmd.split())
 
     def stop(self):
         if self.playing != None:
             self.playing.terminate()
             self.playing.wait()
+            __logger__.info("Audio stoped!")
 
     def __del__(self):
         self.stop()

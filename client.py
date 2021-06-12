@@ -1,6 +1,5 @@
 from datetime import datetime
 import logging
-import time
 import sip.Session
 import sip.Client
 import sip.Network
