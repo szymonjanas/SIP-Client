@@ -55,3 +55,6 @@ class Receiver(threading.Thread):
                 self.callback.process(self.networkConnector.recv())
         except Exception as ex:
             __logger__.error(str(ex))
+        
+    def __del__(self):
+        self.status = False

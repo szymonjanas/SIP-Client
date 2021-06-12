@@ -13,12 +13,15 @@ class Adapter:
         self.session.invite(number)
 
     def cancel(self):
-        pass #TODO
+        self.session.stop()
 
     def getSettings(self):
         sett = self.settings.load()
         self.__loadClient__(sett)
         return sett
+
+    def getState(self):
+        return self.session.getState()
 
     def setSettings(self, p_username, p_password, p_addressIp):
         self.settings.save(p_username, p_password, p_addressIp)
@@ -37,3 +40,9 @@ class Adapter:
             self.settings.guiLogger.log('Client registered to server!')
         except ConnectionResetError as cre:
             self.settings.guiLogger.log("Client can not connect to sip server: " + str(cre))
+
+    def __del__(self):
+        if self.session != None:
+            self.session.__del__()
+        if self.receiver != None:
+            self.receiver.__del__()

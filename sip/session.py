@@ -20,13 +20,19 @@ class Session(threading.Thread):
 
         threading.Thread.__init__(self)
         self.deamon = True
-        self.start()
+        # self.start()
 
         self.username_destination = '100'
         self.STATE = 'Idle'
 
+    def __del__(self):
+        self.audio.stop()
+
     def run(self):
-        print()
+        pass
+
+    def getState(self):
+        return self.STATE
 
     def register(self):
         self.STATE = 'Register'
@@ -56,6 +62,11 @@ class Session(threading.Thread):
         self.client.network.send(   ackMsg,
                                     self.client.config.domain,
                                     self.client.config.sipPORT)
+
+    def stop(self):
+        self.audio.stop()
+        self.STATE = 'Register'
+        # TODO CANCEL MESSAGE IF INVITE
 
     def process(self, p_response : sip.Network.Response):
         t_response = sip.serialize.decodeRequest(p_response.data)

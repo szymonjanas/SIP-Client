@@ -71,9 +71,15 @@ class MainWindow(QDialog, MainForm):
     def onClick_btnCall(self):
         number = str(self.getInputNumber())
         self.session.callTo(number)
+        if self.session.getState() == 'Invite':
+            self.btnStop.setText('Zakończ')
 
     def onClick_btnStop(self):
-        pass #TODO
+        if self.session.getState() == 'Register':
+            self.inputNumber.setText('')
+        elif self.session.getState() == 'Invite':
+            self.session.cancel()
+            self.btnStop.setText('Anuluj')
 
     def onClick_btnSettings(self):
         self.settingsWindow.open()
@@ -96,6 +102,7 @@ class MainWindow(QDialog, MainForm):
 class Gui:
     def __init__(self, p_session):
         self.app = QApplication([])
+        self.session = p_session
         self.mainWindow = MainWindow(p_session)
         self.app.aboutToQuit.connect(self.myExitHandler)
 
@@ -104,4 +111,5 @@ class Gui:
         self.app.exec_()
 
     def myExitHandler(self):
+        self.session.__del__()
         os._exit(1)
