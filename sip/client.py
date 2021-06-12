@@ -1,4 +1,8 @@
 import sip.Network
+import logging
+
+__logger__ = logging.getLogger(__name__)
+
 
 class Config:
     def __init__(   self,
@@ -43,3 +47,15 @@ class Client:
             p_userAgent=p_userAgent)
         self.isRegister = False
         self.history = list()
+        self.guilogger = None
+
+    def setGuiLogger(self, p_guiLogger):
+        self.guilogger = p_guiLogger
+
+    def log(self, msg : str):
+        if self.guilogger != None:
+            self.guilogger.log(msg)
+        else:
+            __logger__.error('GUI Logger not setted!')
+            __logger__.warning('Message missed in gui logger: ' + str(msg))
+    

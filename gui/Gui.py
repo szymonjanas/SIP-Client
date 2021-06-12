@@ -1,4 +1,5 @@
 from typing import Set
+from sip import Session as SipSession
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
 import time, os
@@ -71,15 +72,12 @@ class MainWindow(QDialog, MainForm):
     def onClick_btnCall(self):
         number = str(self.getInputNumber())
         self.session.callTo(number)
-        if self.session.getState() == 'Invite':
+        if self.session.getState() == SipSession.STATE.INVITE:
             self.btnStop.setText('Zakończ')
 
     def onClick_btnStop(self):
-        if self.session.getState() == 'Register':
-            self.inputNumber.setText('')
-        elif self.session.getState() == 'Invite':
-            self.session.cancel()
-            self.btnStop.setText('Anuluj')
+        self.session.cancel()
+        self.btnStop.setText('Anuluj')
 
     def onClick_btnSettings(self):
         self.settingsWindow.open()

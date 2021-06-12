@@ -27,7 +27,7 @@ class Audio:
         path = 'E:\\PWr\\Semestr6\\UiSMUrządzeniaISystemyMultimedialne\\ProjektSIP\\Program\\SIP-Client\\'
         cmd = 'ffmpeg.exe -re -i {path}sample_u-law.wav -vn -f mulaw -f rtp rtp://{ip}:{port}'.format(path=path, ip=self.ip, port=p_port)
         __logger__.info("Audio execute: " + cmd)
-        self.playing = subprocess.Popen(cmd.split())
+        # self.playing = subprocess.Popen(cmd.split())
 
     def stop(self):
         if self.playing != None:

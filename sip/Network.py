@@ -1,7 +1,6 @@
 import socket
 import logging
 import threading
-import sip.messages
 import sip.helpers
 
 __logger__ = logging.getLogger(__name__)

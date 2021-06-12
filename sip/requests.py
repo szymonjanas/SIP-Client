@@ -41,10 +41,7 @@ def __buildBasicRequest__(p_requestName : str,
     return request
 
 def REGISTER(p_client : sip.Client.Client,
-             p_branch : str = sip.header.branch(),
-             p_callID : str = sip.header.callID(),
-             p_cseq : str = sip.header.cseq(),
-             p_tag : str ="dd022aced4fbd05a",
+             p_callDetails : sip.header.CallDetails = sip.header.CallDetails(),
              p_authorization : sip.authorization.Authorization = None):
     requestName = 'REGISTER'
     request = str()
@@ -53,10 +50,10 @@ def REGISTER(p_client : sip.Client.Client,
                                      p_domain=p_client.config.domain,
                                      p_clientIP=p_client.config.clientIP,
                                      p_clientPORT=p_client.config.clientPORT,
-                                     p_branch=p_branch,
-                                     p_tag=p_tag,
-                                     p_callID=p_callID,
-                                     p_cseq=p_cseq)
+                                     p_branch=p_callDetails.branch,
+                                     p_tag=p_callDetails.tag,
+                                     p_callID=p_callDetails.callID,
+                                     p_cseq=p_callDetails.cseq)
     request += 'Expires: {r_expires}\r\n'.format(r_expires=p_client.config.expires)
     request += 'User-Agent: {}\r\n'.format(p_client.config.userAgent)
     if not p_authorization is None and not p_client.config.password is None:
@@ -70,10 +67,7 @@ def REGISTER(p_client : sip.Client.Client,
 
 def INVITE( p_client : sip.Client.Client, 
             p_username_dest : str,
-            p_tag : str ="dd022aced4fbd05a",
-            p_branch : str = sip.header.branch(),
-            p_callID : str = sip.header.callID(),
-            p_cseq : str = sip.header.cseq(),
+            p_callDetails : sip.header.CallDetails = sip.header.CallDetails(),
             p_contentSDP : str = None):
     requestName = 'INVITE'
     request = str()
@@ -82,10 +76,10 @@ def INVITE( p_client : sip.Client.Client,
                                         p_domain=p_client.config.domain,
                                         p_clientIP=p_client.config.clientIP,
                                         p_clientPORT=p_client.config.clientPORT,
-                                        p_branch=p_branch,
-                                        p_tag=p_tag,
-                                        p_callID=p_callID,
-                                        p_cseq=p_cseq,
+                                        p_branch=p_callDetails.branch,
+                                        p_tag=p_callDetails.tag,
+                                        p_callID=p_callDetails.callID,
+                                        p_cseq=p_callDetails.cseq,
                                         p_username_dest=p_username_dest)
     request += 'Supported: 100rel\r\n'
     request += 'User-Agent: {}\r\n'.format(p_client.config.userAgent)
@@ -100,14 +94,10 @@ def INVITE( p_client : sip.Client.Client,
         request += '\r\n'
     return request
 
-
-
 def ACK(p_client : sip.Client.Client, 
         p_username_dest : str,
         p_tag : str ="dd022aced4fbd05a",
-        p_branch : str = sip.header.branch(),
-        p_callID : str = sip.header.callID(),
-        p_cseq : str = sip.header.cseq()):
+        p_callDetails : sip.header.CallDetails = sip.header.CallDetails()):
     requestName = 'ACK'
     request = str()
     request += __buildBasicRequest__(   p_requestName=requestName,
@@ -115,12 +105,57 @@ def ACK(p_client : sip.Client.Client,
                                         p_domain=p_client.config.domain,
                                         p_clientIP=p_client.config.clientIP,
                                         p_clientPORT=p_client.config.clientPORT,
-                                        p_branch=p_branch,
+                                        p_branch=p_callDetails.branch,
                                         p_tag=p_tag,
-                                        p_callID=p_callID,
-                                        p_cseq=p_cseq,
+                                        p_callID=p_callDetails.callID,
+                                        p_cseq=p_callDetails.cseq,
                                         p_username_dest=p_username_dest)
     request += 'User-Agent: {}\r\n'.format(p_client.config.userAgent)
     contentLength = 0
+    request += 'Content-Length: {}\r\n'.format(contentLength)
+    request += '\r\n'
+    return request
+
+def CANCEL( p_client : sip.Client.Client, 
+            p_username_dest : str,
+            p_tag : str ="dd022aced4fbd05a",
+            p_callDetails : sip.header.CallDetails = sip.header.CallDetails()):
+    requestName = 'CANCEL'
+    request = str()
+    request += __buildBasicRequest__(   p_requestName=requestName,
+                                        p_username=p_client.config.username,
+                                        p_domain=p_client.config.domain,
+                                        p_clientIP=p_client.config.clientIP,
+                                        p_clientPORT=p_client.config.clientPORT,
+                                        p_branch=p_callDetails.branch,
+                                        p_tag=p_tag,
+                                        p_callID=p_callDetails.callID,
+                                        p_cseq=p_callDetails.cseq,
+                                        p_username_dest=p_username_dest)
+    request += 'User-Agent: {}\r\n'.format(p_client.config.userAgent)
+    contentLength = 0
+    request += 'Content-Length: {}\r\n'.format(contentLength)
+    request += '\r\n'
+    return request
+
+def BYE( p_client : sip.Client.Client, 
+         p_username_dest : str,
+         p_tag : str ="dd022aced4fbd05a",
+         p_callDetails : sip.header.CallDetails = sip.header.CallDetails()):
+    requestName = 'BYE'
+    request = str()
+    request += __buildBasicRequest__(   p_requestName=requestName,
+                                        p_username=p_client.config.username,
+                                        p_domain=p_client.config.domain,
+                                        p_clientIP=p_client.config.clientIP,
+                                        p_clientPORT=p_client.config.clientPORT,
+                                        p_branch=p_callDetails.branch,
+                                        p_tag=p_tag,
+                                        p_callID=p_callDetails.callID,
+                                        p_cseq=p_callDetails.cseq,
+                                        p_username_dest=p_username_dest)
+    request += 'User-Agent: {}\r\n'.format(p_client.config.userAgent)
+    contentLength = 0
+    request += 'Content-Length: {}\r\n'.format(contentLength)
     request += '\r\n'
     return request
