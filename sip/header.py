@@ -22,7 +22,7 @@ def maxForwards():
 class CallDetails:
     def __init__(self):
         self.tag ="dd022aced4fbd05a"
-        self.branch = sip.header.branch()
-        self.callID = sip.header.callID()
-        self.cseq = sip.header.cseq()
+        self.branch = branch()
+        self.callID = callID()
+        self.cseq = cseq()
         

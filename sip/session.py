@@ -1,11 +1,14 @@
 import threading
 import sip.requests
+import sip.responses
 import sip.serialize
 import sip.authorization
 import sip.Client
 import sip.header
 import sip.Audio
 import logging
+import time
+import copy
 
 __logger__ = logging.getLogger(__name__)
 
@@ -21,7 +24,6 @@ class Session(threading.Thread):
         self.client = p_client
         self.last_response = None
         self.callID = sip.header.callID()
-        self.senderQ = list()
 
         self.audio = sip.Audio.Audio()
 
@@ -31,23 +33,37 @@ class Session(threading.Thread):
         self.username_destination = '100'
         self.STATE = STATE.IDLE
         self.expires = 120
+        self.lastRegister = 0
+        self.isRegister = False
+        self.reregister = True
 
         self.callDetails = sip.header.CallDetails()
 
         self.start()
 
     def __del__(self):
+        self.reregister = False
         self.audio.stop()
 
     def run(self):
-        pass
+        while self.reregister:
+            if self.isRegister:
+                if time.time() - self.lastRegister >= self.expires - int(0.1*self.expires):
+                    self.register()
 
     def getState(self):
         return self.STATE
 
-    def register(self):
+    def register(self, p_auth=None):
         self.STATE = STATE.REGISTER
-        registerMsg = sip.requests.REGISTER(p_client=self.client, p_callDetails=self.callDetails)
+        self.lastRegister = time.time()
+        registerMsg = None
+        if p_auth == None:
+            registerMsg = sip.requests.REGISTER(p_client=self.client, p_callDetails=self.callDetails)
+        else:
+            registerMsg = sip.requests.REGISTER(p_client=self.client, 
+                                                p_callDetails=self.callDetails,
+                                                p_authorization=p_auth)
         self.client.network.send(   registerMsg,
                                     self.client.config.domain,
                                     self.client.config.sipPORT)
@@ -101,24 +117,40 @@ class Session(threading.Thread):
         self.audio.stop()
         self.STATE = STATE.IDLE
 
+    def r_ok(self, p_requestResponse, p_cseq, p_tag, p_contactPort):
+        t_callDetails = copy.deepcopy(self.callDetails)
+        t_callDetails.cseq = p_cseq
+        okRespMsg = sip.responses.RESPONSE( sip.responses.RESPONSES.OK200,
+                                            p_username=self.client.config.username,
+                                            p_username_dest=self.username_destination,
+                                            p_domain=self.client.config.domain,
+                                            p_clientIP=self.client.config.domain,
+                                            p_clientPORT=self.client.config.sipPORT,
+                                            p_userAgent=self.client.config.userAgent,
+                                            p_callDetails=t_callDetails,
+                                            p_contactPort=p_contactPort,
+                                            p_tagFrom=p_tag,
+                                            p_requestResponse=p_requestResponse)
+        self.client.network.send(   okRespMsg,
+                                    self.client.config.domain, 
+                                    self.client.config.sipPORT)
+
     def process(self, p_response : sip.Network.Response):
         t_response = sip.serialize.decodeRequest(p_response.data)
         self.last_response = t_response
+
         if t_response["Message"] == 'SIP/2.0 401 Unauthorized':
             self.client.log('Unauthorized.')
-            registerWithAuth = sip.requests.REGISTER(
-                                    p_client = self.client, p_callDetails=self.callDetails,
-                                    p_authorization=sip.authorization.Authorization(p_nonce=t_response['nonce'],
-                                                                                    p_realm=t_response['realm'],
-                                                                                    p_method=t_response['method']))
-            self.client.network.send(   registerWithAuth,
-                                        self.client.config.domain,
-                                        self.client.config.sipPORT)
-            return
+            authDetails = sip.authorization.Authorization( p_nonce=t_response['nonce'],
+                                                                    p_realm=t_response['realm'],
+                                                                    p_method=t_response['method'])
+            self.register(authDetails)
 
-        if t_response["Message"] == 'SIP/2.0 200 OK':
+        elif t_response["Message"] == 'SIP/2.0 200 OK':
             if self.STATE == STATE.REGISTER:
                 log = '200 OK. Registered!'
+                self.expires = int(t_response['expires'])
+                self.isRegister = True
                 self.client.log(log)
                 __logger__.info(log)
             elif self.STATE == STATE.INVITE:
@@ -134,20 +166,26 @@ class Session(threading.Thread):
             elif self.STATE == STATE.IDLE:
                 self.client.log('200 OK. Canceled!')
  
-        if t_response["Message"] == 'SIP/2.0 100 Trying':
+        elif t_response["Message"] == 'SIP/2.0 100 Trying':
             self.client.log('Trying...')
             __logger__.info("Trying...")
 
-        if t_response["Message"] == 'SIP/2.0 180 Ringing':
+        elif t_response["Message"] == 'SIP/2.0 180 Ringing':
             self.client.log('Ringing...')
             __logger__.info("Ringing...")
 
-        if t_response["Message"] == 'SIP/2.0 480 Temporarily Unavailable':
-            self.client.log('Temporarily Unavailable...')
-            __logger__.info("Temporarily Unavailable...")
+        elif t_response["Message"] == 'SIP/2.0 480 Temporarily Unavailable':
+            self.client.log('Temporarily Unavailable.')
+            __logger__.info("Temporarily Unavailable.")
             self.ack()
         
-        if t_response["Message"].split()[0] == 'BYE':
+        elif t_response["Message"].split()[0] == 'BYE':
             self.client.log('Bye...')
             __logger__.info("Bye...")
             self.audio.stop()
+            self.r_ok(p_requestResponse='BYE', p_cseq=t_response['cseq'], p_tag=t_response['tag'], p_contactPort=t_response['contactPort'])
+
+        elif t_response["Message"] == 'SIP/2.0 487 Request Terminated':
+            self.client.log('Request Terminated!')
+            __logger__.info("Request Terminated!")
+            self.ack()

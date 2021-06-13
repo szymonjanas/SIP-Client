@@ -56,7 +56,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Stop</string>
+    <string>Anuluj</string>
    </property>
   </widget>
   <widget class="QLabel" name="labelApplicationName">

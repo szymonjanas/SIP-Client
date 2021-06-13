@@ -25,13 +25,13 @@ class Config:
 
 class Client:
     def __init__(   self,
-                    p_username : str ="101",
-                    p_domain : str ="127.0.0.1",
-                    p_clientIP : str ='127.0.0.1',
+                    p_username : str = "101",
+                    p_domain : str = "127.0.0.1",
+                    p_clientIP : str = '127.0.0.1',
                     p_network : sip.Network.NetworkConnector = None,
-                    p_expires : int  =120,
-                    p_sipPORT : int =5060,
-                    p_password : str ='101',
+                    p_expires : int  = 120,
+                    p_sipPORT : int = 5060,
+                    p_password : str = '101',
                     p_userAgent : str = 'BAJS-phone'):
         self.network = p_network
         if self.network is None:

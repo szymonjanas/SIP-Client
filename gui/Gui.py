@@ -72,12 +72,9 @@ class MainWindow(QDialog, MainForm):
     def onClick_btnCall(self):
         number = str(self.getInputNumber())
         self.session.callTo(number)
-        if self.session.getState() == SipSession.STATE.INVITE:
-            self.btnStop.setText('Zakończ')
 
     def onClick_btnStop(self):
         self.session.cancel()
-        self.btnStop.setText('Anuluj')
 
     def onClick_btnSettings(self):
         self.settingsWindow.open()

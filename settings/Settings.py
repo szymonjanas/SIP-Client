@@ -32,6 +32,7 @@ class Settings:
             jobject = json.load(self.file)
             self.object = SettingsItem(jobject['username'], jobject['password'], jobject['addressIp'])
             self.guiLogger.log('Loaded.')
+            self.file.close()
         except Exception as ex:
             log = "Problem with reading json settings file: " + self.path + ", exception: " + str(ex)
             self.guiLogger.log(log)
@@ -48,6 +49,7 @@ class Settings:
             self.file = open(self.path, 'w')
             json.dump(self.object.toJson(), self.file)
             self.guiLogger.log('Saved.')
+            self.file.close()
         except Exception as ex:
             __logger__.error('Exception occured! ' + str(ex))
             self.guiLogger.log(log)

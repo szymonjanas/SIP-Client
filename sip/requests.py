@@ -96,7 +96,6 @@ def INVITE( p_client : sip.Client.Client,
 
 def ACK(p_client : sip.Client.Client, 
         p_username_dest : str,
-        p_tag : str ="dd022aced4fbd05a",
         p_callDetails : sip.header.CallDetails = sip.header.CallDetails()):
     requestName = 'ACK'
     request = str()
@@ -106,7 +105,7 @@ def ACK(p_client : sip.Client.Client,
                                         p_clientIP=p_client.config.clientIP,
                                         p_clientPORT=p_client.config.clientPORT,
                                         p_branch=p_callDetails.branch,
-                                        p_tag=p_tag,
+                                        p_tag=p_callDetails.tag,
                                         p_callID=p_callDetails.callID,
                                         p_cseq=p_callDetails.cseq,
                                         p_username_dest=p_username_dest)
@@ -118,7 +117,6 @@ def ACK(p_client : sip.Client.Client,
 
 def CANCEL( p_client : sip.Client.Client, 
             p_username_dest : str,
-            p_tag : str ="dd022aced4fbd05a",
             p_callDetails : sip.header.CallDetails = sip.header.CallDetails()):
     requestName = 'CANCEL'
     request = str()
@@ -128,7 +126,7 @@ def CANCEL( p_client : sip.Client.Client,
                                         p_clientIP=p_client.config.clientIP,
                                         p_clientPORT=p_client.config.clientPORT,
                                         p_branch=p_callDetails.branch,
-                                        p_tag=p_tag,
+                                        p_tag=p_callDetails.tag,
                                         p_callID=p_callDetails.callID,
                                         p_cseq=p_callDetails.cseq,
                                         p_username_dest=p_username_dest)
@@ -140,7 +138,6 @@ def CANCEL( p_client : sip.Client.Client,
 
 def BYE( p_client : sip.Client.Client, 
          p_username_dest : str,
-         p_tag : str ="dd022aced4fbd05a",
          p_callDetails : sip.header.CallDetails = sip.header.CallDetails()):
     requestName = 'BYE'
     request = str()
@@ -150,7 +147,7 @@ def BYE( p_client : sip.Client.Client,
                                         p_clientIP=p_client.config.clientIP,
                                         p_clientPORT=p_client.config.clientPORT,
                                         p_branch=p_callDetails.branch,
-                                        p_tag=p_tag,
+                                        p_tag=p_callDetails.tag,
                                         p_callID=p_callDetails.callID,
                                         p_cseq=p_callDetails.cseq,
                                         p_username_dest=p_username_dest)

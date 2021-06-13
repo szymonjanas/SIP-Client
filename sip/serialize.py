@@ -6,6 +6,11 @@ def decodeRequest(p_request):
     request = dict()
     p_request = p_request.split("\r\n")
     request['Message'] = p_request[0]
+
+    t_addr = request['Message'].split()[1][4:]
+    t_addr_idx = t_addr.find(':')
+    request['contactPort'] = t_addr[t_addr_idx+1:]
+
     for idx in range(len(p_request)):
 
         if p_request[idx].find('WWW-Authenticate') != -1:
@@ -28,6 +33,13 @@ def decodeRequest(p_request):
         if p_request[idx].find('m=audio ') != -1:
             idx_t = len('nm=audio')
             request['audio-port'] = p_request[idx][idx_t:idx_t+5]
+
+        if p_request[idx].find('Expires:') != -1:
+            request['expires'] = p_request[idx][8:]
+
+        if p_request[idx].find('From:') != -1:
+            idx_t = p_request[idx].find('tag=')
+            request['tag'] = p_request[idx][idx_t+4:idx_t+4+17]
 
     __logger__.info(request)
     return request
