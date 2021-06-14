@@ -7,12 +7,32 @@ The project was made in *Polish launguage*, so part of gui interface you can fin
 
 Project created only for match specifics test scenario and its not recommend to use in any commertial case (not finished, without network security). (educational purpose only)
 
-Application GUI:
+## 1. Application GUI:
+
 ![app gui](img/gui.png)
 
-Tests line:
+## 2. Tests line:
+
 ![test line](img/testLine.jpg)
 
-Class diagram for GUI:
-![class diagram](img/diagramKlasProgramuGUI.jpg)
+## 3. Class diagram gui:
 
+![class diagram gui](img/diagramKlasProgramuGUI.jpg)
+
+## 4. Class diagram sip
+
+![class diagram sip](img/diagramKlasProgramuSIP.jpg)
+
+## 5. Class diagram settings
+
+![class diagram settings](img/diagramKlasProgramuSETTINGS.jpg)
+
+## 6. Main script flow (objects creations) for run the program
+
+![main script](img/diagramKlasProgramuMAIN.jpg)
+
+## 7. Wireshark flow on test line
+
+![wireshark flow](img/wireshark.png)
+
+Note: project will be abandoned as soon as we receive a grade :P
