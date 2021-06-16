@@ -36,3 +36,4 @@ Project created only for a specifics test scenario and its not recommended to us
 ![wireshark flow](img/wireshark.png)
 
 Note: project will be abandoned as soon as we receive the grade :P
+We got highest grade (5.5), so project have been officially closed!
